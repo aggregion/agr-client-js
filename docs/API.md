@@ -24,7 +24,7 @@
 * [AggBlockchain](#AggBlockchain)
     * [new AggBlockchain(config)](#new_AggBlockchain_new)
     * _instance_
-        * [.createAccount(name, ownerKey, [activeKey])](#AggBlockchain+createAccount) ⇒ <code>Promise</code>
+        * [.createAccount(creator, name, ownerKey, [activeKey], [stake])](#AggBlockchain+createAccount) ⇒ <code>Promise.&lt;\*&gt;</code>
         * [.transfer(from, to, quantity, [memo], [symbol])](#AggBlockchain+transfer) ⇒ <code>Promise.&lt;object&gt;</code>
         * [.getAccountBalance(name, [contract], [currency])](#AggBlockchain+getAccountBalance) ⇒ <code>Promise.&lt;\*&gt;</code>
     * _static_
@@ -45,16 +45,22 @@ Creates a new instance
 
 <a name="AggBlockchain+createAccount"></a>
 
-### aggBlockchain.createAccount(name, ownerKey, [activeKey]) ⇒ <code>Promise</code>
+### aggBlockchain.createAccount(creator, name, ownerKey, [activeKey], [stake]) ⇒ <code>Promise.&lt;\*&gt;</code>
 Creates a new account
 
 **Kind**: instance method of [<code>AggBlockchain</code>](#AggBlockchain)  
 
 | Param | Type | Description |
 | --- | --- | --- |
+| creator | <code>string</code> | Creator (payer) account name |
 | name | <code>string</code> | Name of account |
 | ownerKey | <code>string</code> | OwnerKey of account |
 | [activeKey] | <code>string</code> | ActiveKey of account |
+| [stake] | <code>object</code> | Stake parameters |
+| [stake.net] | <code>string</code> \| [<code>Asset</code>](#Asset) | Stake for network |
+| [stake.cpu] | <code>string</code> \| [<code>Asset</code>](#Asset) | Stake for CPU |
+| [stake.ram] | <code>Number</code> | Ram bytes |
+| [stake.transfer] | <code>boolean</code> | Transfer or stake coins |
 
 <a name="AggBlockchain+transfer"></a>
 
@@ -81,7 +87,7 @@ Returns balance of account
 | Param | Type | Default |
 | --- | --- | --- |
 | name | <code>string</code> |  | 
-| [contract] | <code>string</code> | <code>&quot;\&quot;eosio.token\&quot;&quot;</code> | 
+| [contract] | <code>string</code> | <code>&quot;\&quot;agrio.token\&quot;&quot;</code> | 
 | [currency] | <code>string</code> | <code>&quot;\&quot;AGR\&quot;&quot;</code> | 
 
 <a name="AggBlockchain.createKeyPair"></a>
