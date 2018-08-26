@@ -6,6 +6,7 @@ chai.use(chaiAsPromised);
 const should = chai.should();
 
 const verbose = process.env.VERBOSE;
+const accountCreator = 'eosio';
 
 const getConfig = () => {
     return {
@@ -56,32 +57,101 @@ describe('AggBlockchain', () => {
             const config = getConfig();
             const agg = new AggBlockchain(config);
             const accountName = getNewAccountName();
-            await agg.createAccount(accountName, testOwnerKey, testActiveKey);
+            await agg.createAccount(accountCreator, accountName, testOwnerKey, testActiveKey);
         });
 
         it('should throw if name has invalid characters', () => {
             const config = getConfig();
             const agg = new AggBlockchain(config);
-            return agg.createAccount('123456', testOwnerKey, testActiveKey).should.be.rejected;
+            return agg.createAccount(accountCreator, '123456', testOwnerKey, testActiveKey).should.be.rejected;
         });
 
         it('should throw if length of name is invalid', () => {
             const config = getConfig();
             const agg = new AggBlockchain(config);
-            return agg.createAccount('abcdefghijklmnop', testOwnerKey, testActiveKey).should.be.rejected;
+            return agg.createAccount(accountCreator, 'abcdefghijklmnop', testOwnerKey, testActiveKey).should.be.rejected;
         });
 
         it('should throw if name is empty', () => {
             const config = getConfig();
             const agg = new AggBlockchain(config);
-            return agg.createAccount('', testOwnerKey, testActiveKey).should.be.rejected;
+            return agg.createAccount(accountCreator, '', testOwnerKey, testActiveKey).should.be.rejected;
         });
 
         it('should throw if key is empty', () => {
             const config = getConfig();
             const agg = new AggBlockchain(config);
             const accountName = getNewAccountName();
-            return agg.createAccount(accountName, '').should.be.rejected;
+            return agg.createAccount(accountCreator, accountName, '').should.be.rejected;
+        });
+
+        it('should not throw if stake defined by user', async () => {
+            const config = getConfig();
+            const agg = new AggBlockchain(config);
+            await agg.createAccount(accountCreator, getNewAccountName(), testOwnerKey, testActiveKey, {
+                cpu: '10.0000 AGR',
+                net: '10.0000 AGR',
+                ram: 5000,
+                transfer: true
+            }).should.be.fulfilled;
+            await agg.createAccount(accountCreator, getNewAccountName(), testOwnerKey, testActiveKey, {
+                cpu: new Asset(1, 'AGR'),
+                net: new Asset(1, 'AGR'),
+                ram: 5000,
+                transfer: true
+            }).should.be.fulfilled;
+        });
+
+        it('should throw if stake is not defined', () => {
+            const config = getConfig();
+            const agg = new AggBlockchain(config);
+            const accountName = getNewAccountName();
+            return agg.createAccount(accountCreator, accountName, testOwnerKey, testActiveKey, null).should.be.rejected;
+        });
+
+        it('should throw if stake.cpu is not defined or invalid', async () => {
+            const config = getConfig();
+            const agg = new AggBlockchain(config);
+            const accountName = getNewAccountName();
+            await agg.createAccount(accountCreator, accountName, testOwnerKey, testActiveKey, {
+                net: '1.0000 AGR',
+                ram: 5000
+            }).should.be.rejected;
+            await agg.createAccount(accountCreator, accountName, testOwnerKey, testActiveKey, {
+                net: '1.0000 AGR',
+                cpu: 100,
+                ram: 5000
+            }).should.be.rejected;
+        });
+
+        it('should throw if stake.net is not defined or invalid', async () => {
+            const config = getConfig();
+            const agg = new AggBlockchain(config);
+            const accountName = getNewAccountName();
+            await agg.createAccount(accountCreator, accountName, testOwnerKey, testActiveKey, {
+                cpu: '1.0000 AGR',
+                ram: 5000
+            }).should.be.rejected;
+            await agg.createAccount(accountCreator, accountName, testOwnerKey, testActiveKey, {
+                cpu: '1.0000 AGR',
+                net: 100,
+                ram: 5000
+            }).should.be.rejected;
+        });
+
+        it('should throw if stake.ram is not defined or invalid', async () => {
+            const config = getConfig();
+            const agg = new AggBlockchain(config);
+            const accountName = getNewAccountName();
+            await agg.createAccount(accountCreator, accountName, testOwnerKey, testActiveKey, {
+                net: '1.0000 AGR',
+                cpu: '1.0000 AGR',
+                ram: -100
+            }).should.be.rejected;
+            await agg.createAccount(accountCreator, accountName, testOwnerKey, testActiveKey, {
+                net: '1.0000 AGR',
+                cpu: '1.0000 AGR'
+            }).should.be.rejected;
         });
     });
 
@@ -106,17 +176,17 @@ describe('AggBlockchain', () => {
             const senderAccount = getNewAccountName();
             const receiverAccount = getNewAccountName();
             const agg = new AggBlockchain(newConfig);
-            await agg.createAccount(senderAccount, senderKeyPair.publicKey);
-            await agg.createAccount(receiverAccount, receiverKeyPair.publicKey);
+            await agg.createAccount(accountCreator, senderAccount, senderKeyPair.publicKey);
+            await agg.createAccount(accountCreator, receiverAccount, receiverKeyPair.publicKey);
             await agg.transfer('eosio', senderAccount, new Asset(100, 'AGR'));
-            let balance = await agg.getAccountBalance(senderAccount);
+            let balance = await agg.getAccountBalance(senderAccount, 'eosio.token');
             should.exist(balance.AGR);
             balance.AGR.should.equal(100);
             await agg.transfer(senderAccount, receiverAccount, new Asset(70, 'AGR'));
-            balance = await agg.getAccountBalance(senderAccount);
+            balance = await agg.getAccountBalance(senderAccount, 'eosio.token');
             should.exist(balance.AGR);
             balance.AGR.should.equal(30);
-            balance = await agg.getAccountBalance(receiverAccount);
+            balance = await agg.getAccountBalance(receiverAccount, 'eosio.token');
             should.exist(balance.AGR);
             balance.AGR.should.equal(70);
         });
@@ -137,9 +207,9 @@ describe('AggBlockchain', () => {
             const agg = new AggBlockchain(config);
             const accountName = getNewAccountName();
             const keyPair = await AggBlockchain.createKeyPair();
-            await agg.createAccount(accountName, keyPair.publicKey);
+            await agg.createAccount(accountCreator, accountName, keyPair.publicKey);
             await agg.transfer('eosio', accountName, new Asset(0.0001, 'AGR'));
-            const balance = await agg.getAccountBalance(accountName);
+            const balance = await agg.getAccountBalance(accountName, 'eosio.token');
             should.exist(balance.AGR);
             balance.AGR.should.equal(0.0001);
         });

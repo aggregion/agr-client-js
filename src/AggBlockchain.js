@@ -1,4 +1,4 @@
-const Eos = require('@aggregion/agrjs');
+const Agr = require('@aggregion/agrjs');
 const check = require('check-types');
 const binaryen = require('binaryen');
 const ecc = require('eosjs-ecc');
@@ -22,20 +22,38 @@ class AggBlockchain {
         } else {
              check.assert.array(config.keyProvider, 'config.keyProvider should be array or string');
         }
-        this._eos = new Eos(Object.assign(config, {binaryen}));
+        this._agr = new Agr(Object.assign(config, {binaryen}));
     }
 
 
     /**
      * Creates a new account
+     * @param {string} creator Creator (payer) account name
      * @param {string} name Name of account
      * @param {string} ownerKey OwnerKey of account
      * @param {string} [activeKey] ActiveKey of account
-     * @return {Promise}
+     * @param {object} [stake] Stake parameters
+     * @param {string|Asset} [stake.net] Stake for network
+     * @param {string|Asset} [stake.cpu] Stake for CPU
+     * @param {Number} [stake.ram] Ram bytes
+     * @param {boolean} [stake.transfer] Transfer or stake coins
+     * @return {Promise<*>}
      */
-    async createAccount(name, ownerKey, activeKey) {
+    async createAccount(creator, name, ownerKey, activeKey, stake = {net: new Asset(0.0001, 'AGR'), cpu: new Asset(0.0001, 'AGR'), ram: 5000, transfer: false}) {
         check.assert.nonEmptyString(name, '"name" should be non-empty string');
         check.assert.nonEmptyString(name, '"ownerKey" should be non-empty string');
+        check.assert.assigned(stake, '"stake" is required');
+        check.assert.assigned(stake.net, '"stake.net" is required');
+        check.assert.assigned(stake.cpu, '"stake.cpu" is required');
+        check.assert.assigned(stake.ram, '"stake.ram" is required');
+        check.assert.positive(stake.ram, '"stake.ram" should be > 0');
+        check.assert.assigned(stake.transfer, '"stake.transfer" stake is required');
+        if (typeof stake.net === 'string') {
+            stake.net = new Asset(stake.net);
+        }
+        if (typeof stake.cpu === 'string') {
+            stake.cpu = new Asset(stake.cpu);
+        }
         if (name.length > 12) {
             throw new Error('"name" can be up to 12 characters long');
         }
@@ -49,26 +67,25 @@ class AggBlockchain {
         } else {
             check.assert.nonEmptyString(activeKey, '"activeKey" should be non-empty string');
         }
-        const transactionResult = await this._eos.transaction(tr => {
+        return await this._agr.transaction(tr => {
             tr.newaccount({
-                creator: 'eosio',
+                creator: creator,
                 name: name,
                 owner: ownerKey,
                 active: activeKey
             });
-            // Надо покупать память для аккуанта от имени eosio
             tr.buyrambytes({
-                payer: 'eosio',
+                payer: creator,
                 receiver: name,
-                bytes: 5000
+                bytes: stake.ram
             });
 
             tr.delegatebw({
-                from: 'eosio',
+                from: creator,
                 receiver: name,
-                stake_net_quantity: '10.0000 AGR',
-                stake_cpu_quantity: '10.0000 AGR',
-                transfer: 1
+                stake_net_quantity: stake.net.toString(),
+                stake_cpu_quantity: stake.cpu.toString(),
+                transfer: stake.transfer ? 1 : 0
             });
         });
     }
@@ -114,18 +131,18 @@ class AggBlockchain {
         } else {
             throw new Error('"quantity" should be number or Asset');
         }
-        return await this._eos.transfer(from, to, asset.toString(), memo);
+        return await this._agr.transfer(from, to, asset.toString(), memo);
     }
 
     /**
      * Returns balance of account
      * @param {string} name
-     * @param {string} [contract="eosio.token"]
+     * @param {string} [contract="agrio.token"]
      * @param {string} [currency="AGR"]
      * @return {Promise<*>}
      */
-    async getAccountBalance(name, contract = 'eosio.token', currency = 'AGR') {
-        const result = await this._eos.getCurrencyBalance(contract, name, currency);
+    async getAccountBalance(name, contract = 'agrio.token', currency = 'AGR') {
+        const result = await this._agr.getCurrencyBalance(contract, name, currency);
         const balance = {};
         result.forEach(b => {
            const asset = new Asset(b);

@@ -32,7 +32,7 @@ const keyPair = await AgrClient.createKeyPair(); // returns {publicKey: '...', p
 
 // Create an account
 
-await agg.createAccount('accountname', keyPair.publicKey, keyPair.publicKey);
+await agg.createAccount('payer', ''accountname', keyPair.publicKey, keyPair.publicKey);
 
 // Transfer AGR
 
