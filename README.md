@@ -1,4 +1,4 @@
-#AGR Client for Node.js
+# AGR Client for Node.js
 
 Node.js client for license management features of Aggregion blockchain platform (AGR).
 
