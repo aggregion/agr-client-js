@@ -39,7 +39,7 @@ class AggBlockchain {
      * @param {boolean} [stake.transfer] Transfer or stake coins
      * @return {Promise<*>}
      */
-    async createAccount(creator, name, ownerKey, activeKey, stake = {net: new Asset(0.0001, 'AGR'), cpu: new Asset(0.0001, 'AGR'), ram: 5000, transfer: false}) {
+    async createAccount(creator, name, ownerKey, activeKey, stake = {net: new Asset(1, 'AGR'), cpu: new Asset(1, 'AGR'), ram: 5000, transfer: false}) {
         check.assert.nonEmptyString(name, '"name" should be non-empty string');
         check.assert.nonEmptyString(name, '"ownerKey" should be non-empty string');
         check.assert.assigned(stake, '"stake" is required');
