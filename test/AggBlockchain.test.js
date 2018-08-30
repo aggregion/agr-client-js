@@ -6,7 +6,7 @@ chai.use(chaiAsPromised);
 const should = chai.should();
 
 const verbose = process.env.VERBOSE;
-const accountCreator = 'eosio';
+const accountCreator = 'agrio';
 
 const getConfig = () => {
     return {
@@ -18,8 +18,8 @@ const getConfig = () => {
 };
 
 
-const testOwnerKey = 'EOS7RHP6JbHkxAPDFaqrT4XFJ9X2Dj6KBWy8JLkwWgEhLTqhxppsw';
-const testActiveKey = 'EOS5mL8J3MmrPejy4erVzpyxgegLVSjZdJayi22sjMir4J9Ec7ZZE';
+const testOwnerKey = 'AGR7RHP6JbHkxAPDFaqrT4XFJ9X2Dj6KBWy8JLkwWgEhLTqhxppsw';
+const testActiveKey = 'AGR5mL8J3MmrPejy4erVzpyxgegLVSjZdJayi22sjMir4J9Ec7ZZE';
 
 const allowedAccountSymbols = AggBlockchain.allowedAccountSymbols;
 
@@ -178,15 +178,15 @@ describe('AggBlockchain', () => {
             const agg = new AggBlockchain(newConfig);
             await agg.createAccount(accountCreator, senderAccount, senderKeyPair.publicKey);
             await agg.createAccount(accountCreator, receiverAccount, receiverKeyPair.publicKey);
-            await agg.transfer('eosio', senderAccount, new Asset(100, 'AGR'));
-            let balance = await agg.getAccountBalance(senderAccount, 'eosio.token');
+            await agg.transfer('agrio', senderAccount, new Asset(100, 'AGR'));
+            let balance = await agg.getAccountBalance(senderAccount, 'agrio.token');
             should.exist(balance.AGR);
             balance.AGR.should.equal(100);
             await agg.transfer(senderAccount, receiverAccount, new Asset(70, 'AGR'));
-            balance = await agg.getAccountBalance(senderAccount, 'eosio.token');
+            balance = await agg.getAccountBalance(senderAccount, 'agrio.token');
             should.exist(balance.AGR);
             balance.AGR.should.equal(30);
-            balance = await agg.getAccountBalance(receiverAccount, 'eosio.token');
+            balance = await agg.getAccountBalance(receiverAccount, 'agrio.token');
             should.exist(balance.AGR);
             balance.AGR.should.equal(70);
         });
@@ -208,8 +208,8 @@ describe('AggBlockchain', () => {
             const accountName = getNewAccountName();
             const keyPair = await AggBlockchain.createKeyPair();
             await agg.createAccount(accountCreator, accountName, keyPair.publicKey);
-            await agg.transfer('eosio', accountName, new Asset(0.0001, 'AGR'));
-            const balance = await agg.getAccountBalance(accountName, 'eosio.token');
+            await agg.transfer('agrio', accountName, new Asset(0.0001, 'AGR'));
+            const balance = await agg.getAccountBalance(accountName, 'agrio.token');
             should.exist(balance.AGR);
             balance.AGR.should.equal(0.0001);
         });

@@ -1,7 +1,7 @@
 const Agr = require('@aggregion/agrjs');
 const check = require('check-types');
 const binaryen = require('binaryen');
-const ecc = require('eosjs-ecc');
+const ecc = require('@aggregion/agrjs-ecc');
 const Asset = require('./Asset');
 
 const allowedAccountSymbols = '.12345abcdefghijklmnopqrstuvwxyz';
