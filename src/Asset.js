@@ -8,15 +8,15 @@ const stringify = (quantity, symbol) => {
 };
 
 const parseAsset = str => {
-  const regex = /^(\d+\.\d{4}) ([A-Z]{3})$/;
-  if (!regex.test(str)) {
-      throw new Error('Invalid asset string format');
-  }
-  const match = str.match(regex);
-  return {
-    quantity: parseFloat(match[1]),
-    symbol: match[2]
-  };
+    const regex = /^(\d+\.\d{4}) ([A-Z]{3})$/;
+    if (!regex.test(str)) {
+        throw new Error('Invalid asset string format');
+    }
+    const match = str.match(regex);
+    return {
+        quantity: parseFloat(match[1]),
+        symbol: match[2]
+    };
 };
 
 /**
@@ -62,7 +62,6 @@ class Asset {
         return stringify(this.quantity, this.symbol);
     }
 }
-
 
 
 module.exports = Asset;
