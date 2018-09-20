@@ -25,7 +25,7 @@ const allowedAccountSymbols = AggBlockchain.allowedAccountSymbols;
 
 const getNewAccountName = () => {
     const len = 6;
-    let s = 'agtst.';
+    let s = 'aggtst';
     for (let i = 0; i < len; i++) {
         s += allowedAccountSymbols[Math.trunc(Math.random() * allowedAccountSymbols.length)];
     }
@@ -53,6 +53,8 @@ describe('AggBlockchain', () => {
 
     describe('#createAccount', function () {
         this.timeout(300000);
+
+
         it('should create account', async () => {
             const config = getConfig();
             const agg = new AggBlockchain(config);

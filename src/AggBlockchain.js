@@ -4,7 +4,7 @@ const binaryen = require('binaryen');
 const ecc = require('@aggregion/agrjs-ecc');
 const Asset = require('./Asset');
 
-const allowedAccountSymbols = '.12345abcdefghijklmnopqrstuvwxyz';
+const allowedAccountSymbols = '12345abcdefghijklmnopqrstuvwxyz';
 
 class AggBlockchain {
     /**
@@ -61,6 +61,9 @@ class AggBlockchain {
             if (!allowedAccountSymbols.includes(name[i])) {
                 throw new Error(`Name contains invalid character ${name[i]}`);
             }
+        }
+        if (name[name.length - 1] === '.') {
+            throw new Error(`Name should not ends with "."`);
         }
         if (!activeKey) {
             activeKey = ownerKey;
