@@ -23,5 +23,8 @@
     "mocha": "5.2.0"
   },
   "homepage": "https://github.com/aggregion/agr-client-js",
-  "repository": "github:aggregion/agr-client-js"
+  "repository": "github:aggregion/agr-client-js",
+  "publishConfig": {
+    "access": "public"
+  }
 }
